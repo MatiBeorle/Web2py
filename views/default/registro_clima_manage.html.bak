@@ -1,0 +1,3 @@
+{{extend 'layout.html'}}
+
+<h2>Manage registro_clima</h2><p>{{=form}}</p>

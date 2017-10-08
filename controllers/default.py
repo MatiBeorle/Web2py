@@ -1,0 +1,118 @@
+# -*- coding: utf-8 -*-
+
+import socket
+import time
+
+### required - do no delete
+def user(): return dict(form=auth())
+def download(): return response.download(request,db)
+def call(): return service()
+### end requires
+def index():
+    return dict()
+
+def error():
+    return dict()
+
+def registro_clima_manage():
+    form = SQLFORM.smartgrid(db.t_registro_clima,onupdate=auth.archive)
+    return locals()
+
+def actual_manage():
+    return dict()
+
+
+def procesa():
+	# recupera configuracion
+	f = open("config.txt")
+	f.close()
+
+	try:
+		# abre el server
+		ser = socket.socket() 
+		ser.connect(("186.19.225.66", 9138))
+		buff = ""
+		
+		mensaje = ser.recv(1024)
+		#ser.send(mensaje) 
+		
+		# muestra indicador 
+		response.flash="leyendo datos"
+		
+		#ENVIO LOS DATOS T256;H48;ST243;DVNE;VV10;UV1;LL10
+
+		T,H,ST,DV,VV,UV,LL=dato.split(";")
+		
+		
+		T=float(T[1:])
+		H=H[1:]
+		ST=float(ST[2:])
+		DV=DV[2:]
+		VV=VV[2:]
+		UV=UV[2:]
+		LL=LL[2:]
+
+
+		T=T/10
+		ST=ST/10
+		
+		"""
+		25.6
+		48		ASI LLEGAN LOS DATOS
+		24.6
+		NE
+		10
+		11
+		10
+		"""
+		
+		ser.close()
+		
+		# genera html con los datos obtenidos	
+		sale = """
+			<tr><td class="td-i"><h2>temperatura</h2></td>
+				<td class="td-d"><h2>"""
+					
+		sale = sale + buff[0:5] + """ &deg;C</h2>
+				</td></tr>
+			<tr><td class="td-i"><h2>humedad</h2></td>
+				<td class="td-d"><h2>"""
+					
+		sale = sale + buff[10:16] + """ %</h2>
+				</td></tr>
+			<tr><td class="td-i"><h2>sensaci&oacute;n t&eacute;rmica</h2>
+				</td><td class="td-d"><h2>"""
+					
+		sale = sale + buff[20:26] + """ &deg;C</h2></td></tr>"""
+			
+		sale = sale + """<tr><td>puerto</td>
+					<td>""" + puerto + """</td></tr>"""  
+		
+		sale = sale + """<tr><td>baudrate</td>
+					<td>""" + str(baudios) + """</td></tr>"""
+		
+		# guarda datos en la tabla registro_clima
+		fechahora = time.strftime("%Y-%m-%d") + " " 
+		fechahora = fechahora + time.strftime("%H:%M:%S")
+			
+		db.t_registro_clima.insert(fecha=fechahora,			###t_registro_clima o t_registro_clima_archive va?
+                               temperatura= T,
+                               humedad= H,
+                               sensacion_termica= ST,
+							   direccion_viento=DV,
+							   velocidad_viento=VV,
+							   indice_uv=UV,
+							   cantidad_lluvia=LL,
+                               )
+		
+	except serial.serialutil.SerialException, mensaje:
+		# genera mensaje de error
+		response.flash="error de comunicaciones"
+		sale = "<tr><td>error</td></tr>" 
+		sale = sale + """<tr><td>
+			puerto: """ + puerto + """</td></tr>"""  
+		
+		sale = sale + """<tr><td>
+			baudrate: """ + str(baudios) + """</td></tr>"""
+			
+	return sale

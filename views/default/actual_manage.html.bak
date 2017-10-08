@@ -1,0 +1,8 @@
+{{extend 'layout.html'}}
+
+<h2>Mediciones actuales</h2>
+<body>
+
+<button type="button" onclick="alert('Hello world!')">Click Me!</button>
+ 
+</body>
